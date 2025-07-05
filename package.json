@@ -1,5 +1,5 @@
 {
-  "name": "telegram-sticker-api",
+  "name": "sticker-pack-api",
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
