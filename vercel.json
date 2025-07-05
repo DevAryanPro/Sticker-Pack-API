@@ -4,12 +4,28 @@
     {
       "src": "api/create-sticker.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/create-sticker",
+      "src": "^/$",
+      "dest": "api/index.js"
+    },
+    {
+      "src": "^/api/create-sticker$",
       "dest": "api/create-sticker.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "status": 404,
+      "dest": "api/404.js"
     }
   ]
 }
