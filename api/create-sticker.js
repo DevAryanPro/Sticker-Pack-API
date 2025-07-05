@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import FormData from 'form-data';
+import sharp from 'sharp';
 
 export default async function handler(req, res) {
   const { bot_token, user_id, pack_name, title, image_url, emojis = '😎' } = req.query;
@@ -17,14 +18,23 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: '❌ Failed to download image from image_url' });
     }
 
-    const imageBuffer = await imageRes.buffer();
+    const rawImage = await imageRes.buffer();
+
+    // ✅ Resize image to max 512x512 for Telegram
+    const resized = await sharp(rawImage)
+      .resize(512, 512, {
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .png()
+      .toBuffer();
 
     const formData = new FormData();
     formData.append('user_id', user_id);
     formData.append('name', pack_name);
     formData.append('title', `${title} | @EmojisxStickersBot`);
     formData.append('emojis', emojis);
-    formData.append('png_sticker', imageBuffer, {
+    formData.append('png_sticker', resized, {
       filename: 'sticker.png',
       contentType: 'image/png'
     });
