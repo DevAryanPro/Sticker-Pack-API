@@ -7,12 +7,11 @@ export default async function handler(req, res) {
   if (!bot_token || !user_id || !pack_name || !title || !image_url) {
     return res.status(400).json({
       error: '❌ Missing required parameters',
-      required: ['bot_token', 'user_id', 'pack_name', 'title', 'image_url'],
+      required: ['bot_token', 'user_id', 'pack_name', 'title', 'image_url']
     });
   }
 
   try {
-    // Download the image
     const imageRes = await fetch(image_url);
     if (!imageRes.ok) {
       return res.status(400).json({ error: '❌ Failed to download image from image_url' });
@@ -27,33 +26,29 @@ export default async function handler(req, res) {
     formData.append('emojis', emojis);
     formData.append('png_sticker', imageBuffer, {
       filename: 'sticker.png',
-      contentType: 'image/png',
+      contentType: 'image/png'
     });
 
-    const telegramRes = await fetch(
-      `https://api.telegram.org/bot${bot_token}/createNewStickerSet`,
-      {
-        method: 'POST',
-        body: formData,
-      }
-    );
+    const tgRes = await fetch(`https://api.telegram.org/bot${bot_token}/createNewStickerSet`, {
+      method: 'POST',
+      body: formData
+    });
 
-    const result = await telegramRes.json();
+    const result = await tgRes.json();
 
     if (!result.ok) {
       return res.status(400).json({
         error: '❌ Telegram API error',
-        description: result.description || 'Unknown error',
+        description: result.description || 'Unknown error'
       });
     }
 
-    const link = `https://t.me/addstickers/${pack_name}`;
     return res.status(200).json({
       success: true,
       message: '✅ Sticker pack created!',
-      share_link: link,
+      share_link: `https://t.me/addstickers/${pack_name}`
     });
-  } catch (e) {
-    return res.status(500).json({ error: '❌ Server error', detail: e.message });
+  } catch (err) {
+    return res.status(500).json({ error: '❌ Internal Server Error', detail: err.message });
   }
 }
